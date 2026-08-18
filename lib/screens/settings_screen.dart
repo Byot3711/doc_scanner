@@ -14,17 +14,18 @@ class SettingsScreen extends StatelessWidget {
         children: [
           SwitchListTile(
             title: const Text('Dark Mode'),
-            subtitle: const Text('Use system theme'),
+            subtitle: const Text('Use system theme or dark mode'),
             value: themeNotifier.themeMode == ThemeMode.dark,
             onChanged: (val) {
               themeNotifier.setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
             },
           ),
+          const Divider(),
           const AboutListTile(
             icon: Icon(Icons.info),
             child: Text('About'),
-            applicationName: 'Doc Scanner',
-            applicationVersion: '1.0.0',
+            applicationName: 'Doc Scanner Pro',
+            applicationVersion: '2.0.0',
           ),
         ],
       ),

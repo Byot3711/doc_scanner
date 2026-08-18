@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class PdfService {
   static Future<File> createSearchablePdf(String imagePath, String text) async {
@@ -36,5 +37,11 @@ class PdfService {
     final file = File(outputPath);
     await file.writeAsBytes(await pdf.save());
     return file;
+  }
+
+  static Future<void> printPdf(File pdfFile) async {
+    await Printing.layoutPdf(
+      onLayout: (format) async => pdfFile.readAsBytes(),
+    );
   }
 }

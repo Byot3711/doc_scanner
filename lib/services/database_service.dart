@@ -44,11 +44,6 @@ class DatabaseService {
     return maps.map((map) => ScannedDocument.fromMap(map)).toList();
   }
 
-  Future<int> updateDocument(ScannedDocument doc) async {
-    final db = await database;
-    return db.update('documents', doc.toMap(), where: 'id = ?', whereArgs: [doc.id]);
-  }
-
   Future<int> deleteDocument(int id) async {
     final db = await database;
     return db.delete('documents', where: 'id = ?', whereArgs: [id]);

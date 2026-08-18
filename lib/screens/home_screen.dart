@@ -1,10 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../services/camera_service.dart';
-import '../services/edge_detection_service.dart';
+import '../widgets/app_logo.dart';
 import 'editor_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -49,9 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       await _setupCamera();
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Camera permission denied')),
-        );
+        Fluttertoast.showToast(msg: 'Camera permission required');
       }
     }
   }
@@ -81,15 +80,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     try {
       final imagePath = await CameraService.takePicture();
       if (imagePath != null && mounted) {
-        final croppedFile = await EdgeDetectionService.autoCrop(imagePath);
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => EditorScreen(imageFile: croppedFile),
-            ),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EditorScreen(imageFile: File(imagePath)),
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Capture error: $e');
@@ -102,15 +98,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
     if (pickedFile != null && mounted) {
-      final croppedFile = await EdgeDetectionService.autoCrop(pickedFile.path);
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => EditorScreen(imageFile: croppedFile),
-          ),
-        );
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => EditorScreen(imageFile: File(pickedFile.path)),
+        ),
+      );
     }
   }
 
@@ -118,7 +111,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Doc Scanner'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppLogo(size: 32),
+            SizedBox(width: 12),
+            Text('Doc Scanner Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -140,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             CameraPreview(_cameraController!)
           else
             const Center(child: CircularProgressIndicator()),
+
           Positioned.fill(
             child: IgnorePointer(
               child: Center(
@@ -147,35 +148,49 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   width: MediaQuery.of(context).size.width * 0.85,
                   height: MediaQuery.of(context).size.width * 1.2,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white54, width: 2),
-                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white, width: 2),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                 ),
               ),
             ),
           ),
+
           Positioned(
-            bottom: 40,
+            bottom: 32,
             left: 0,
             right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                FloatingActionButton(
+                FloatingActionButton.extended(
                   heroTag: 'gallery',
                   onPressed: _pickFromGallery,
-                  child: const Icon(Icons.photo_library),
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text('Gallery'),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  elevation: 4,
                 ),
                 FloatingActionButton.large(
                   heroTag: 'capture',
                   onPressed: _isCapturing ? null : _capture,
                   child: _isCapturing
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Icon(Icons.camera, size: 40),
+                      ? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                      : Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black87, width: 3),
+                          ),
+                        ),
                 ),
+                const SizedBox(width: 72),
               ],
             ),
-          ).animate().fadeIn().slideY(begin: 0.2),
+          ),
         ],
       ),
     );

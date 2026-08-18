@@ -1,7 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:io';
 import '../services/database_service.dart';
 import '../models/scanned_document.dart';
+import 'document_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -26,14 +28,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _deleteDocument(ScannedDocument doc) async {
+    try {
+      await File(doc.imagePath).delete();
+      await File(doc.pdfPath).delete();
+    } catch (e) {
+      debugPrint('Error deleting files: $e');
+    }
     await DatabaseService.instance.deleteDocument(doc.id!);
     _refresh();
+    if (mounted) Fluttertoast.showToast(msg: 'Document deleted');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(
+        title: const Text('History'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refresh,
+          ),
+        ],
+      ),
       body: FutureBuilder<List<ScannedDocument>>(
         future: _docsFuture,
         builder: (context, snapshot) {
@@ -45,7 +62,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
           }
           final docs = snapshot.data ?? [];
           if (docs.isEmpty) {
-            return const Center(child: Text('No scanned documents yet.'));
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.history_toggle_off, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('No scanned documents yet.', style: TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Go to Scan'),
+                  ),
+                ],
+              ),
+            );
           }
           return RefreshIndicator(
             onRefresh: _refresh,
@@ -56,17 +87,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return Dismissible(
                   key: Key(doc.id.toString()),
                   direction: DismissDirection.endToStart,
-                  background: Container(color: Colors.red, alignment: Alignment.centerRight, padding: const EdgeInsets.only(right: 20), child: const Icon(Icons.delete, color: Colors.white)),
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
                   onDismissed: (_) => _deleteDocument(doc),
-                  child: ListTile(
-                    leading: Image.file(File(doc.imagePath), width: 50, height: 70, fit: BoxFit.cover),
-                    title: Text(doc.title),
-                    subtitle: Text('${doc.extractedText.length} chars · ${_formatDate(doc.createdAt)}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.open_in_new),
-                      onPressed: () {},
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(doc.imagePath),
+                          width: 60,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      title: Text(doc.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                        '${doc.extractedText.length} chars · ${_formatDate(doc.createdAt)}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DocumentDetailScreen(
+                              imageFile: File(doc.imagePath),
+                              extractedText: doc.extractedText,
+                              pdfFile: File(doc.pdfPath),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    onTap: () {},
                   ),
                 );
               },

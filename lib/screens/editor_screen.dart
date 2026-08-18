@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../services/ocr_service.dart';
 import '../services/pdf_service.dart';
 import 'result_screen.dart';
@@ -26,17 +26,19 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   Future<void> _runOcr() async {
+    if (_isProcessing) return;
     setState(() => _isProcessing = true);
     try {
-      final text = await OcrService.recognizeText(_currentImage.path);
-      _extractedText = text;
-      if (text.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Text extracted (${text.length} chars)')),
-        );
+      final text = await OcrService.recognizeText(_currentImage.path, language: 'eng+ron');
+      if (text.startsWith('OCR failed')) {
+        if (mounted) Fluttertoast.showToast(msg: 'OCR failed. Try again.');
+      } else {
+        _extractedText = text;
+        if (mounted) Fluttertoast.showToast(msg: 'Text extracted successfully!');
       }
     } catch (e) {
       debugPrint('OCR error: $e');
+      if (mounted) Fluttertoast.showToast(msg: 'OCR error: $e');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -44,16 +46,24 @@ class _EditorScreenState extends State<EditorScreen> {
 
   Future<void> _generatePdf() async {
     if (_extractedText == null || _extractedText!.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('No text'),
-          content: const Text('Run OCR first to extract text.'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-        ),
-      );
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('No Text Extracted'),
+            content: const Text('Please run OCR first to extract text from the document.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
       return;
     }
+
     setState(() => _isProcessing = true);
     try {
       _pdfFile = await PdfService.createSearchablePdf(_currentImage.path, _extractedText!);
@@ -71,6 +81,7 @@ class _EditorScreenState extends State<EditorScreen> {
       }
     } catch (e) {
       debugPrint('PDF error: $e');
+      if (mounted) Fluttertoast.showToast(msg: 'PDF generation failed: $e');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -81,33 +92,61 @@ class _EditorScreenState extends State<EditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Scan'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
       body: Column(
         children: [
           Expanded(
-            child: InteractiveViewer(
-              child: Image.file(_currentImage, fit: BoxFit.contain),
+            child: Container(
+              color: Colors.black,
+              child: InteractiveViewer(
+                child: Image.file(_currentImage, fit: BoxFit.contain),
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _isProcessing ? null : _runOcr,
-                icon: _isProcessing
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.text_fields),
-                label: const Text('OCR'),
-              ),
-              ElevatedButton.icon(
-                onPressed: _isProcessing ? null : _generatePdf,
-                icon: const Icon(Icons.picture_as_pdf),
-                label: const Text('Generate PDF'),
-              ),
-            ],
-          ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2),
-          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _isProcessing ? null : _runOcr,
+                  icon: _isProcessing
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.text_fields),
+                  label: const Text('OCR Text'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _isProcessing ? null : _generatePdf,
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('Generate PDF'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

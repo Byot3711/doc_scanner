@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/scanned_document.dart';
 import '../services/database_service.dart';
+import '../services/pdf_service.dart';
+import 'document_detail_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   final File imageFile;
@@ -40,7 +43,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<void> _saveDocument() async {
     if (_saved) return;
-    final title = 'Scan_${DateTime.now().millisecondsSinceEpoch}';
+    final title = 'Scan_${DateTime.now().toString().replaceAll(':', '-').substring(0, 19)}';
     final appDir = await getApplicationDocumentsDirectory();
     final savedImage = File('${appDir.path}/images/$title.jpg');
     await savedImage.parent.create(recursive: true);
@@ -60,9 +63,7 @@ class _ResultScreenState extends State<ResultScreen> {
     await DatabaseService.instance.insertDocument(doc);
     setState(() => _saved = true);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document saved!')),
-      );
+      Fluttertoast.showToast(msg: 'Document saved to history!');
     }
   }
 
@@ -73,9 +74,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Future<void> _copyText() async {
     await Clipboard.setData(ClipboardData(text: _textController.text));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Text copied')),
-      );
+      Fluttertoast.showToast(msg: 'Text copied to clipboard');
     }
   }
 
@@ -85,8 +84,21 @@ class _ResultScreenState extends State<ResultScreen> {
       appBar: AppBar(
         title: const Text('Result'),
         actions: [
-          IconButton(icon: const Icon(Icons.share), onPressed: _sharePdf),
-          IconButton(icon: const Icon(Icons.save), onPressed: _saveDocument),
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            tooltip: 'Download PDF',
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _sharePdf,
+            tooltip: 'Share PDF',
+          ),
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: _saveDocument,
+            tooltip: 'Save to History',
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -96,29 +108,56 @@ class _ResultScreenState extends State<ResultScreen> {
           children: [
             Card(
               clipBehavior: Clip.antiAlias,
-              child: Image.file(widget.imageFile, fit: BoxFit.cover, height: 200),
+              child: Image.file(widget.imageFile, fit: BoxFit.cover, height: 250),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const Spacer(),
-                IconButton(icon: const Icon(Icons.copy), onPressed: _copyText),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: _copyText,
+                  tooltip: 'Copy Text',
+                ),
               ],
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _textController,
-              maxLines: 10,
+              maxLines: null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'No text extracted',
+                contentPadding: EdgeInsets.all(12),
               ),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _saved ? null : _saveDocument,
               icon: const Icon(Icons.save_alt),
-              label: Text(_saved ? 'Saved' : 'Save to History'),
+              label: Text(_saved ? 'Saved ✓' : 'Save to History'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _saved ? Colors.grey : Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DocumentDetailScreen(
+                      imageFile: widget.imageFile,
+                      extractedText: _textController.text,
+                      pdfFile: widget.pdfFile,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Open Full Document View'),
             ),
           ],
         ),
