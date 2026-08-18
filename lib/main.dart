@@ -36,6 +36,7 @@ class DocScannerProApp extends StatelessWidget {
                 centerTitle: true,
                 elevation: 0,
                 scrolledUnderElevation: 0.5,
+                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               cardTheme: CardThemeData(
                 elevation: 2,
@@ -58,6 +59,7 @@ class DocScannerProApp extends StatelessWidget {
                 centerTitle: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
+                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               cardTheme: CardThemeData(
                 elevation: 2,

@@ -21,11 +21,12 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(),
-          const AboutListTile(
-            icon: Icon(Icons.info),
-            child: Text('About'),
+          AboutListTile(
+            icon: const Icon(Icons.info),
+            child: const Text('About'),
             applicationName: 'Doc Scanner Pro',
-            applicationVersion: '2.0.0',
+            applicationVersion: '4.0.0',
+            applicationLegalese: '© 2024 Valentin Constantinescu\nhttps://github.com/Byot3711/doc_scanner',
           ),
         ],
       ),

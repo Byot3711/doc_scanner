@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart';
 import '../services/pdf_service.dart';
 
 class DocumentDetailScreen extends StatefulWidget {
@@ -36,14 +35,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _downloadPdf() async {
-    await PdfService.printPdf(widget.pdfFile);
-  }
-
-  Future<void> _sharePdf() async {
-    await Share.shareXFiles([XFile(widget.pdfFile.path)], text: 'Scanned document');
-  }
-
   Future<void> _copyText() async {
     await Clipboard.setData(ClipboardData(text: _textController.text));
     if (mounted) Fluttertoast.showToast(msg: 'Text copied');
@@ -57,11 +48,13 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            onPressed: _downloadPdf,
+            onPressed: () => PdfService.downloadPdf(widget.pdfFile),
+            tooltip: 'Download PDF',
           ),
           IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _sharePdf,
+            icon: const Icon(Icons.print),
+            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            tooltip: 'Print PDF',
           ),
         ],
       ),
@@ -106,11 +99,22 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: _downloadPdf,
+              onPressed: () => PdfService.downloadPdf(widget.pdfFile),
               icon: const Icon(Icons.download),
               label: const Text('Download PDF'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => PdfService.printPdf(widget.pdfFile),
+              icon: const Icon(Icons.print),
+              label: const Text('Print PDF'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Colors.white,
               ),
             ),
           ],

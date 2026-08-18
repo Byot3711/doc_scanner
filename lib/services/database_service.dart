@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/scanned_document.dart';
+import '../models/document.dart';
 
 class DatabaseService {
   DatabaseService._();

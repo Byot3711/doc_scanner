@@ -29,9 +29,9 @@ class _EditorScreenState extends State<EditorScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
     try {
-      final text = await OcrService.recognizeText(_currentImage.path, language: 'eng+ron');
-      if (text.startsWith('OCR failed')) {
-        if (mounted) Fluttertoast.showToast(msg: 'OCR failed. Try again.');
+      final text = await OcrService.recognizeText(_currentImage.path);
+      if (text.isEmpty) {
+        if (mounted) Fluttertoast.showToast(msg: 'OCR failed. Try again or generate PDF without text.');
       } else {
         _extractedText = text;
         if (mounted) Fluttertoast.showToast(msg: 'Text extracted successfully!');
@@ -45,35 +45,18 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   Future<void> _generatePdf() async {
-    if (_extractedText == null || _extractedText!.isEmpty) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('No Text Extracted'),
-            content: const Text('Please run OCR first to extract text from the document.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-      return;
-    }
-
+    if (_isProcessing) return;
     setState(() => _isProcessing = true);
     try {
-      _pdfFile = await PdfService.createSearchablePdf(_currentImage.path, _extractedText!);
+      _pdfFile = await PdfService.createPdf(_currentImage.path, _extractedText ?? '');
+
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => ResultScreen(
               imageFile: _currentImage,
-              extractedText: _extractedText!,
+              extractedText: _extractedText ?? '',
               pdfFile: _pdfFile!,
             ),
           ),
@@ -121,28 +104,45 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ],
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                ElevatedButton.icon(
-                  onPressed: _isProcessing ? null : _runOcr,
-                  icon: _isProcessing
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.text_fields),
-                  label: const Text('OCR Text'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
+                if (_extractedText != null && _extractedText!.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Text: ${_extractedText!.length} chars',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _isProcessing ? null : _generatePdf,
-                  icon: const Icon(Icons.picture_as_pdf),
-                  label: const Text('Generate PDF'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _isProcessing ? null : _runOcr,
+                      icon: _isProcessing
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.text_fields),
+                      label: const Text('Extract Text'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _isProcessing ? null : _generatePdf,
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('Generate PDF'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

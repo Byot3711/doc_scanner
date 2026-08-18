@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import '../services/database_service.dart';
-import '../models/scanned_document.dart';
+import '../models/document.dart';
 import 'document_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {

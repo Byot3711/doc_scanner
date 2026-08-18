@@ -2,9 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import '../models/scanned_document.dart';
+import '../models/document.dart';
 import '../services/database_service.dart';
 import '../services/pdf_service.dart';
 import 'document_detail_screen.dart';
@@ -62,20 +61,12 @@ class _ResultScreenState extends State<ResultScreen> {
     );
     await DatabaseService.instance.insertDocument(doc);
     setState(() => _saved = true);
-    if (mounted) {
-      Fluttertoast.showToast(msg: 'Document saved to history!');
-    }
-  }
-
-  Future<void> _sharePdf() async {
-    await Share.shareXFiles([XFile(widget.pdfFile.path)], text: 'Scanned document');
+    if (mounted) Fluttertoast.showToast(msg: 'Document saved to history!');
   }
 
   Future<void> _copyText() async {
     await Clipboard.setData(ClipboardData(text: _textController.text));
-    if (mounted) {
-      Fluttertoast.showToast(msg: 'Text copied to clipboard');
-    }
+    if (mounted) Fluttertoast.showToast(msg: 'Text copied');
   }
 
   @override
@@ -86,13 +77,13 @@ class _ResultScreenState extends State<ResultScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            onPressed: () => PdfService.downloadPdf(widget.pdfFile),
             tooltip: 'Download PDF',
           ),
           IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _sharePdf,
-            tooltip: 'Share PDF',
+            icon: const Icon(Icons.print),
+            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            tooltip: 'Print PDF',
           ),
           IconButton(
             icon: const Icon(Icons.save),

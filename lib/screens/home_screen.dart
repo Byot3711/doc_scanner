@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/camera_service.dart';
-import '../widgets/app_logo.dart';
 import 'editor_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -49,9 +48,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (status.isGranted) {
       await _setupCamera();
     } else {
-      if (mounted) {
-        Fluttertoast.showToast(msg: 'Camera permission required');
-      }
+      if (mounted) Fluttertoast.showToast(msg: 'Camera permission required');
     }
   }
 
@@ -65,9 +62,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         resolution: ResolutionPreset.veryHigh,
       );
       if (_cameraController != null) {
-        if (mounted) {
-          setState(() => _isCameraReady = true);
-        }
+        if (mounted) setState(() => _isCameraReady = true);
       }
     } catch (e) {
       debugPrint('Camera error: $e');
@@ -114,14 +109,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppLogo(size: 32),
+            Icon(Icons.document_scanner, color: Colors.white, size: 24),
             SizedBox(width: 12),
-            Text('Doc Scanner Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            Text('Doc Scanner Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.flash_on),
+            icon: const Icon(Icons.flash_on, color: Colors.white),
             onPressed: () {
               if (_cameraController != null) {
                 _cameraController!.setFlashMode(
