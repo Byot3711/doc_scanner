@@ -20,22 +20,12 @@ class SettingsScreen extends StatelessWidget {
               themeNotifier.setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
             },
           ),
-          ListTile(
-            title: const Text('System Theme'),
-            subtitle: const Text('Follow device settings'),
-            trailing: Switch(
-              value: themeNotifier.themeMode == ThemeMode.system,
-              onChanged: (val) {
-                themeNotifier.setThemeMode(val ? ThemeMode.system : ThemeMode.light);
-              },
-            ),
-          ),
           const Divider(),
           const AboutListTile(
             icon: Icon(Icons.info),
             child: Text('About'),
             applicationName: 'Doc Scanner Pro',
-            applicationVersion: '5.0.0',
+            applicationVersion: '6.0.0',
             applicationLegalese: '© 2024 Valentin Constantinescu\nhttps://github.com/Byot3711/doc_scanner',
           ),
         ],

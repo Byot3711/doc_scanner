@@ -1,7 +1,7 @@
 name: doc_scanner_pro
 description: Professional document scanner by Valentin Constantinescu.
 publish_to: 'none'
-version: 5.0.0+1
+version: 6.0.0+1
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
@@ -24,6 +24,7 @@ dependencies:
   google_fonts: ^6.1.0
   shared_preferences: ^2.2.2
   image_cropper: ^8.0.2
+  image: ^4.1.7
 
 dev_dependencies:
   flutter_test:

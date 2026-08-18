@@ -48,6 +48,11 @@ class _EditorScreenState extends State<EditorScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
     try {
+      if (!await _currentImage.exists()) {
+        if (mounted) Fluttertoast.showToast(msg: 'Image file not found');
+        return;
+      }
+
       _pdfFile = await PdfService.createPdf(_currentImage.path, _extractedText ?? '');
 
       if (mounted) {
@@ -64,7 +69,7 @@ class _EditorScreenState extends State<EditorScreen> {
       }
     } catch (e) {
       debugPrint('PDF error: $e');
-      if (mounted) Fluttertoast.showToast(msg: 'PDF failed');
+      if (mounted) Fluttertoast.showToast(msg: 'PDF failed: $e');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }

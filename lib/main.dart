@@ -79,7 +79,7 @@ class DocScannerProApp extends StatelessWidget {
 }
 
 class AppThemeNotifier extends ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
   ThemeMode get themeMode => _themeMode;
 
   Future<void> init() async {
@@ -87,10 +87,8 @@ class AppThemeNotifier extends ChangeNotifier {
     final mode = prefs.getString('themeMode');
     if (mode == 'dark') {
       _themeMode = ThemeMode.dark;
-    } else if (mode == 'light') {
-      _themeMode = ThemeMode.light;
     } else {
-      _themeMode = ThemeMode.system;
+      _themeMode = ThemeMode.light;
     }
     notifyListeners();
   }
@@ -101,10 +99,8 @@ class AppThemeNotifier extends ChangeNotifier {
     SharedPreferences.getInstance().then((prefs) {
       if (mode == ThemeMode.dark) {
         prefs.setString('themeMode', 'dark');
-      } else if (mode == ThemeMode.light) {
-        prefs.setString('themeMode', 'light');
       } else {
-        prefs.remove('themeMode');
+        prefs.setString('themeMode', 'light');
       }
     });
   }

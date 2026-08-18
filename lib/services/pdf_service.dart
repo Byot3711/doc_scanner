@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 class PdfService {
   static Future<File> createPdf(String imagePath, String text) async {
     final pdf = pw.Document();
-    final imageBytes = File(imagePath).readAsBytesSync();
+    final imageBytes = await File(imagePath).readAsBytes();
     final pdfImage = pw.MemoryImage(imageBytes);
 
     final page = pw.Page(
@@ -25,7 +25,7 @@ class PdfService {
                     padding: const pw.EdgeInsets.all(20),
                     child: pw.Text(
                       text,
-                      style: pw.TextStyle(fontSize: 10, color: PdfColors.black),
+                      style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
                     ),
                   ),
                 ),
@@ -59,6 +59,7 @@ class PdfService {
   }
 
   static Future<void> printPdf(File pdfFile) async {
+    if (!await pdfFile.exists()) return;
     await Printing.layoutPdf(
       onLayout: (format) async => pdfFile.readAsBytes(),
     );

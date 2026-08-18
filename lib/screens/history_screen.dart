@@ -29,8 +29,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> _deleteDocument(ScannedDocument doc) async {
     try {
-      await File(doc.imagePath).delete();
-      await File(doc.pdfPath).delete();
+      if (await File(doc.imagePath).exists()) {
+        await File(doc.imagePath).delete();
+      }
+      if (await File(doc.pdfPath).exists()) {
+        await File(doc.pdfPath).delete();
+      }
     } catch (e) {
       debugPrint('Error deleting files: $e');
     }

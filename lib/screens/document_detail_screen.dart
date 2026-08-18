@@ -48,11 +48,23 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            onPressed: () => PdfService.downloadPdf(widget.pdfFile),
+            onPressed: () {
+              if (widget.pdfFile.existsSync()) {
+                PdfService.downloadPdf(widget.pdfFile);
+              } else {
+                Fluttertoast.showToast(msg: 'PDF not found');
+              }
+            },
           ),
           IconButton(
             icon: const Icon(Icons.print),
-            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            onPressed: () {
+              if (widget.pdfFile.existsSync()) {
+                PdfService.printPdf(widget.pdfFile);
+              } else {
+                Fluttertoast.showToast(msg: 'PDF not found');
+              }
+            },
           ),
         ],
       ),
@@ -109,7 +121,13 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => PdfService.downloadPdf(widget.pdfFile),
+              onPressed: () {
+                if (widget.pdfFile.existsSync()) {
+                  PdfService.downloadPdf(widget.pdfFile);
+                } else {
+                  Fluttertoast.showToast(msg: 'PDF not found');
+                }
+              },
               icon: const Icon(Icons.download),
               label: const Text('Download PDF'),
               style: ElevatedButton.styleFrom(
@@ -118,7 +136,13 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
-              onPressed: () => PdfService.printPdf(widget.pdfFile),
+              onPressed: () {
+                if (widget.pdfFile.existsSync()) {
+                  PdfService.printPdf(widget.pdfFile);
+                } else {
+                  Fluttertoast.showToast(msg: 'PDF not found');
+                }
+              },
               icon: const Icon(Icons.print),
               label: const Text('Print PDF'),
               style: ElevatedButton.styleFrom(

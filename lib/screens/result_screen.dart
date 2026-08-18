@@ -82,7 +82,13 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.print),
-            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            onPressed: () {
+              if (widget.pdfFile.existsSync()) {
+                PdfService.printPdf(widget.pdfFile);
+              } else {
+                Fluttertoast.showToast(msg: 'PDF not found');
+              }
+            },
             tooltip: 'Print',
           ),
           IconButton(

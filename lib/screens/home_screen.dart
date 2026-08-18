@@ -152,27 +152,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.35 - 20,
-            left: MediaQuery.of(context).size.width * 0.425 - 20,
-            child: const _CornerAccent(top: true, left: true),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.35 - 20,
-            right: MediaQuery.of(context).size.width * 0.425 - 20,
-            child: const _CornerAccent(top: true, left: false),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.35 - 20,
-            left: MediaQuery.of(context).size.width * 0.425 - 20,
-            child: const _CornerAccent(top: false, left: true),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.35 - 20,
-            right: MediaQuery.of(context).size.width * 0.425 - 20,
-            child: const _CornerAccent(top: false, left: false),
-          ),
-
-          Positioned(
             bottom: 40,
             left: 0,
             right: 0,
@@ -215,28 +194,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CornerAccent extends StatelessWidget {
-  final bool top;
-  final bool left;
-  const _CornerAccent({required this.top, required this.left});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        border: Border(
-          top: top ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
-          bottom: !top ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
-          left: left ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
-          right: !left ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
-        ),
       ),
     );
   }

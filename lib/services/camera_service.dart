@@ -8,8 +8,6 @@ class CameraService {
     cameras = await availableCameras();
   }
 
-  static CameraController? get controller => _controller;
-
   static Future<CameraController?> createController({ResolutionPreset resolution = ResolutionPreset.veryHigh}) async {
     if (cameras == null || cameras!.isEmpty) return null;
     _controller = CameraController(
