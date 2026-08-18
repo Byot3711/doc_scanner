@@ -1,64 +1,62 @@
 # Doc Scanner Pro
 
-Aplicație Android (Flutter) pentru scanarea documentelor direct de pe telefon: captură foto sau import din galerie, extragere text prin OCR (Google ML Kit), export în PDF cu strat de text căutabil, istoric al documentelor scanate și interfață modernă, tip Microsoft Lens / Adobe Scan.
+An Android app (Flutter) for scanning documents directly from your phone: photo capture or gallery import, text extraction via OCR (Google ML Kit), PDF export with a searchable text layer, scan history, and a modern interface in the style of Microsoft Lens / Adobe Scan.
 
-## Funcționalități
+## Features
 
-- **Scanare document** — captură cu cameră (preview live, flash) sau selectare imagine din galerie
-- **OCR** — extragere text din imagine folosind Google ML Kit Text Recognition (rapid, on-device, fără fișiere de configurare descărcate manual)
-- **Editare text** — text extras editabil, copiere rapidă în clipboard
-- **Export PDF** — generare PDF cu imaginea documentului și textul extras suprapus (căutabil), descărcare/printare și trimitere (share) direct din aplicație
-- **Istoric** — toate documentele scanate salvate local (SQLite), cu ecran de detalii pentru fiecare (imagine, text, acțiuni PDF)
-- **Temă** — mod luminos/întunecat, design Material 3
+- **Document scanning** — capture with the camera (live preview, flash) or pick an image from the gallery
+- **OCR** — text extraction from the image using Google ML Kit Text Recognition (fast, on-device, no manually downloaded config files)
+- **Text editing** — extracted text is editable, with quick copy to clipboard
+- **PDF export** — generate a PDF with the document image and the extracted text overlaid (searchable); separate **Download PDF** and **Print PDF** actions, plus share directly from the app
+- **History** — every scanned document is saved locally (SQLite), with a detail screen for each one (image, text, PDF actions)
+- **Theme** — light/dark mode, Material 3 design
 
-## Stack tehnic
+## Tech stack
 
 - [Flutter](https://flutter.dev/) / Dart
-- [camera](https://pub.dev/packages/camera) — captură foto
-- [image_picker](https://pub.dev/packages/image_picker) — selectare din galerie
+- [camera](https://pub.dev/packages/camera) — photo capture
+- [image_picker](https://pub.dev/packages/image_picker) — gallery selection
 - [google_mlkit_text_recognition](https://pub.dev/packages/google_mlkit_text_recognition) — OCR
-- [pdf](https://pub.dev/packages/pdf) / [printing](https://pub.dev/packages/printing) — generare și export PDF
-- [sqflite](https://pub.dev/packages/sqflite) — bază de date locală pentru istoric
-- [provider](https://pub.dev/packages/provider) — gestionare temă
-- [share_plus](https://pub.dev/packages/share_plus) — partajare fișiere
+- [pdf](https://pub.dev/packages/pdf) / [printing](https://pub.dev/packages/printing) — PDF generation and export
+- [sqflite](https://pub.dev/packages/sqflite) — local database for history
+- [provider](https://pub.dev/packages/provider) — theme management
+- [share_plus](https://pub.dev/packages/share_plus) — file sharing
 
-## Structură proiect
+## Project structure
 
 ```
 lib/
-├── main.dart                       # entry point, temă, navigație principală
+├── main.dart                       # entry point, theme, main navigation
 ├── models/
-│   └── scanned_document.dart       # model document scanat
+│   └── document.dart               # scanned document model
 ├── services/
-│   ├── database_service.dart       # persistență SQLite
-│   ├── camera_service.dart         # control cameră
-│   ├── ocr_service.dart            # recunoaștere text (ML Kit)
-│   └── pdf_service.dart            # generare/printare PDF
-├── screens/
-│   ├── home_screen.dart            # ecran scanare (cameră + galerie)
-│   ├── editor_screen.dart          # editare imagine, rulare OCR
-│   ├── result_screen.dart          # rezultat OCR, salvare, share
-│   ├── document_detail_screen.dart # detalii document salvat
-│   ├── history_screen.dart         # istoric documente
-│   └── settings_screen.dart        # setări (temă)
-└── widgets/
-    └── app_logo.dart                # logo aplicație
+│   ├── database_service.dart       # SQLite persistence
+│   ├── camera_service.dart         # camera control
+│   ├── ocr_service.dart            # text recognition (ML Kit)
+│   └── pdf_service.dart            # PDF generation/download/print
+└── screens/
+    ├── home_screen.dart            # scan screen (camera + gallery)
+    ├── editor_screen.dart          # image editing, run OCR
+    ├── result_screen.dart          # OCR result, save, share
+    ├── document_detail_screen.dart # saved document details
+    ├── history_screen.dart         # document history
+    └── settings_screen.dart        # settings (theme, about)
 ```
 
-## Instalare (APK)
+## Install (APK)
 
-Cel mai recent APK compilat este disponibil în secțiunea [Releases](https://github.com/Byot3711/doc_scanner/releases). Descarcă `app-release.apk` pe telefon și permite instalarea din surse necunoscute ("Install unknown apps") pentru a-l rula.
+The latest built APK is available in the [Releases](https://github.com/Byot3711/doc_scanner/releases) section. Download `app-release.apk` to your phone and allow installation from unknown sources ("Install unknown apps") to run it.
 
-## Build local
+## Build locally
 
 ```bash
 flutter pub get
 flutter build apk --release
 ```
 
-APK-ul rezultat se găsește în `build/app/outputs/flutter-apk/app-release.apk`.
+The resulting APK is located at `build/app/outputs/flutter-apk/app-release.apk`.
 
-## Autor
+## Author
 
 **Valentin Constantinescu**
 
