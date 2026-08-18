@@ -61,7 +61,7 @@ class _ResultScreenState extends State<ResultScreen> {
     );
     await DatabaseService.instance.insertDocument(doc);
     setState(() => _saved = true);
-    if (mounted) Fluttertoast.showToast(msg: 'Document saved to history!');
+    if (mounted) Fluttertoast.showToast(msg: 'Saved to history!');
   }
 
   Future<void> _copyText() async {
@@ -78,17 +78,17 @@ class _ResultScreenState extends State<ResultScreen> {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: () => PdfService.downloadPdf(widget.pdfFile),
-            tooltip: 'Download PDF',
+            tooltip: 'Download',
           ),
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: () => PdfService.printPdf(widget.pdfFile),
-            tooltip: 'Print PDF',
+            tooltip: 'Print',
           ),
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveDocument,
-            tooltip: 'Save to History',
+            tooltip: 'Save',
           ),
         ],
       ),
@@ -99,28 +99,52 @@ class _ResultScreenState extends State<ResultScreen> {
           children: [
             Card(
               clipBehavior: Clip.antiAlias,
-              child: Image.file(widget.imageFile, fit: BoxFit.cover, height: 250),
+              child: Image.file(widget.imageFile, fit: BoxFit.cover, height: 200),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: _copyText,
-                  tooltip: 'Copy Text',
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.copy, size: 20),
+                          onPressed: _copyText,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (_textController.text.isEmpty)
+                      const Text(
+                        'No text extracted from this document.',
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    else
+                      Text(
+                        _textController.text,
+                        style: const TextStyle(fontSize: 14, height: 1.5),
+                        maxLines: 10,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _textController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                        hintText: 'Edit text...',
+                        contentPadding: EdgeInsets.all(8),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _textController,
-              maxLines: null,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'No text extracted',
-                contentPadding: EdgeInsets.all(12),
               ),
             ),
             const SizedBox(height: 16),
@@ -131,9 +155,10 @@ class _ResultScreenState extends State<ResultScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _saved ? Colors.grey : Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -148,7 +173,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 );
               },
               icon: const Icon(Icons.open_in_new),
-              label: const Text('Open Full Document View'),
+              label: const Text('Full Document View'),
             ),
           ],
         ),

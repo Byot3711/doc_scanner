@@ -31,14 +31,14 @@ class _EditorScreenState extends State<EditorScreen> {
     try {
       final text = await OcrService.recognizeText(_currentImage.path);
       if (text.isEmpty) {
-        if (mounted) Fluttertoast.showToast(msg: 'OCR failed. Try again or generate PDF without text.');
+        if (mounted) Fluttertoast.showToast(msg: 'No text detected. Generating PDF with image only.');
       } else {
         _extractedText = text;
-        if (mounted) Fluttertoast.showToast(msg: 'Text extracted successfully!');
+        if (mounted) Fluttertoast.showToast(msg: 'Text extracted!');
       }
     } catch (e) {
       debugPrint('OCR error: $e');
-      if (mounted) Fluttertoast.showToast(msg: 'OCR error: $e');
+      if (mounted) Fluttertoast.showToast(msg: 'OCR error');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -64,7 +64,7 @@ class _EditorScreenState extends State<EditorScreen> {
       }
     } catch (e) {
       debugPrint('PDF error: $e');
-      if (mounted) Fluttertoast.showToast(msg: 'PDF generation failed: $e');
+      if (mounted) Fluttertoast.showToast(msg: 'PDF failed');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -87,9 +87,7 @@ class _EditorScreenState extends State<EditorScreen> {
           Expanded(
             child: Container(
               color: Colors.black,
-              child: InteractiveViewer(
-                child: Image.file(_currentImage, fit: BoxFit.contain),
-              ),
+              child: Image.file(_currentImage, fit: BoxFit.contain),
             ),
           ),
           Container(
@@ -111,12 +109,19 @@ class _EditorScreenState extends State<EditorScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: Colors.green.shade50,
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
                     ),
-                    child: Text(
-                      'Text: ${_extractedText!.length} chars',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${_extractedText!.length} chars extracted',
+                          style: const TextStyle(fontSize: 12, color: Colors.green),
+                        ),
+                      ],
                     ),
                   ),
                 Row(
@@ -125,21 +130,23 @@ class _EditorScreenState extends State<EditorScreen> {
                     ElevatedButton.icon(
                       onPressed: _isProcessing ? null : _runOcr,
                       icon: _isProcessing
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.text_fields),
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.text_fields, size: 18),
                       label: const Text('Extract Text'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: _isProcessing ? null : _generatePdf,
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('Generate PDF'),
+                      icon: const Icon(Icons.picture_as_pdf, size: 18),
+                      label: const Text('Create PDF'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.secondary,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
                     ),
                   ],

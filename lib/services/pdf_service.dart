@@ -49,7 +49,7 @@ class PdfService {
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
       }
-      final fileName = pdfFile.uri.pathSegments.last;
+      final fileName = 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final destFile = File('${downloadsDir.path}/$fileName');
       await pdfFile.copy(destFile.path);
       await Share.shareXFiles([XFile(destFile.path)], text: 'Scanned document');

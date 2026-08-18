@@ -101,8 +101,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         borderRadius: BorderRadius.circular(8),
                         child: Image.file(
                           File(doc.imagePath),
-                          width: 60,
-                          height: 80,
+                          width: 50,
+                          height: 70,
                           fit: BoxFit.cover,
                         ),
                       ),

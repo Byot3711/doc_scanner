@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/camera_service.dart';
-import 'editor_screen.dart';
+import 'crop_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => EditorScreen(imageFile: File(imagePath)),
+            builder: (_) => CropScreen(imagePath: imagePath),
           ),
         );
       }
@@ -96,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => EditorScreen(imageFile: File(pickedFile.path)),
+          builder: (_) => CropScreen(imagePath: pickedFile.path),
         ),
       );
     }
@@ -110,10 +109,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.document_scanner, color: Colors.white, size: 24),
-            SizedBox(width: 12),
-            Text('Doc Scanner Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+            SizedBox(width: 8),
+            Text('Doc Scanner Pro', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
           ],
         ),
+        backgroundColor: Colors.black87,
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on, color: Colors.white),
@@ -141,10 +141,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               child: Center(
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.width * 1.2,
+                  height: MediaQuery.of(context).size.width * 1.1,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.white, width: 1.5),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
               ),
@@ -152,41 +152,91 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
 
           Positioned(
-            bottom: 32,
+            top: MediaQuery.of(context).size.height * 0.35 - 20,
+            left: MediaQuery.of(context).size.width * 0.425 - 20,
+            child: const _CornerAccent(top: true, left: true),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.35 - 20,
+            right: MediaQuery.of(context).size.width * 0.425 - 20,
+            child: const _CornerAccent(top: true, left: false),
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.35 - 20,
+            left: MediaQuery.of(context).size.width * 0.425 - 20,
+            child: const _CornerAccent(top: false, left: true),
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.35 - 20,
+            right: MediaQuery.of(context).size.width * 0.425 - 20,
+            child: const _CornerAccent(top: false, left: false),
+          ),
+
+          Positioned(
+            bottom: 40,
             left: 0,
             right: 0,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FloatingActionButton.extended(
-                  heroTag: 'gallery',
+                ElevatedButton.icon(
                   onPressed: _pickFromGallery,
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Gallery'),
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
-                  elevation: 4,
+                  icon: const Icon(Icons.photo_library, size: 18),
+                  label: const Text('Gallery', style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
                 ),
-                FloatingActionButton.large(
+                const SizedBox(width: 24),
+                FloatingActionButton(
                   heroTag: 'capture',
                   onPressed: _isCapturing ? null : _capture,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
                   child: _isCapturing
-                      ? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                      : Container(
-                          width: 60,
-                          height: 60,
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
+                      : const DecoratedBox(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black87, width: 3),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+                            ],
                           ),
+                          child: SizedBox(width: 56, height: 56),
                         ),
                 ),
-                const SizedBox(width: 72),
+                const SizedBox(width: 76),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CornerAccent extends StatelessWidget {
+  final bool top;
+  final bool left;
+  const _CornerAccent({required this.top, required this.left});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        border: Border(
+          top: top ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
+          bottom: !top ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
+          left: left ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
+          right: !left ? const BorderSide(color: Colors.white, width: 3) : BorderSide.none,
+        ),
       ),
     );
   }

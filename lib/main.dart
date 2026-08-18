@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'services/database_service.dart';
 import 'screens/home_screen.dart';
@@ -36,7 +37,8 @@ class DocScannerProApp extends StatelessWidget {
                 centerTitle: true,
                 elevation: 0,
                 scrolledUnderElevation: 0.5,
-                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                iconTheme: IconThemeData(color: Colors.black87),
               ),
               cardTheme: CardThemeData(
                 elevation: 2,
@@ -59,7 +61,8 @@ class DocScannerProApp extends StatelessWidget {
                 centerTitle: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                iconTheme: IconThemeData(color: Colors.white),
               ),
               cardTheme: CardThemeData(
                 elevation: 2,
@@ -79,9 +82,31 @@ class AppThemeNotifier extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
 
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mode = prefs.getString('themeMode');
+    if (mode == 'dark') {
+      _themeMode = ThemeMode.dark;
+    } else if (mode == 'light') {
+      _themeMode = ThemeMode.light;
+    } else {
+      _themeMode = ThemeMode.system;
+    }
+    notifyListeners();
+  }
+
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
     notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      if (mode == ThemeMode.dark) {
+        prefs.setString('themeMode', 'dark');
+      } else if (mode == ThemeMode.light) {
+        prefs.setString('themeMode', 'light');
+      } else {
+        prefs.remove('themeMode');
+      }
+    });
   }
 }
 
@@ -99,6 +124,14 @@ class _MainScreenState extends State<MainScreen> {
     HistoryScreen(),
     SettingsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppThemeNotifier>().init();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

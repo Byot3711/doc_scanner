@@ -49,12 +49,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: () => PdfService.downloadPdf(widget.pdfFile),
-            tooltip: 'Download PDF',
           ),
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: () => PdfService.printPdf(widget.pdfFile),
-            tooltip: 'Print PDF',
           ),
         ],
       ),
@@ -76,21 +74,33 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        const Text('Extracted Text', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         const Spacer(),
                         IconButton(
-                          icon: const Icon(Icons.copy),
+                          icon: const Icon(Icons.copy, size: 20),
                           onPressed: _copyText,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
+                    if (_textController.text.isEmpty)
+                      const Text('No text extracted.', style: TextStyle(color: Colors.grey))
+                    else
+                      Text(
+                        _textController.text,
+                        style: const TextStyle(fontSize: 14, height: 1.5),
+                        maxLines: 15,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _textController,
-                      maxLines: 20,
+                      maxLines: 3,
                       decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.all(12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                        contentPadding: EdgeInsets.all(8),
                       ),
                     ),
                   ],
@@ -103,7 +113,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
               icon: const Icon(Icons.download),
               label: const Text('Download PDF'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
             const SizedBox(height: 12),
@@ -112,7 +122,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
               icon: const Icon(Icons.print),
               label: const Text('Print PDF'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Colors.white,
               ),
