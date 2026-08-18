@@ -85,11 +85,7 @@ class AppThemeNotifier extends ChangeNotifier {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final mode = prefs.getString('themeMode');
-    if (mode == 'dark') {
-      _themeMode = ThemeMode.dark;
-    } else {
-      _themeMode = ThemeMode.light;
-    }
+    _themeMode = mode == 'dark' ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 
@@ -97,11 +93,7 @@ class AppThemeNotifier extends ChangeNotifier {
     _themeMode = mode;
     notifyListeners();
     SharedPreferences.getInstance().then((prefs) {
-      if (mode == ThemeMode.dark) {
-        prefs.setString('themeMode', 'dark');
-      } else {
-        prefs.setString('themeMode', 'light');
-      }
+      prefs.setString('themeMode', mode == ThemeMode.dark ? 'dark' : 'light');
     });
   }
 }
