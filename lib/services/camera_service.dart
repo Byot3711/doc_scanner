@@ -9,6 +9,10 @@ class CameraService {
   }
 
   static Future<CameraController?> createController({ResolutionPreset resolution = ResolutionPreset.veryHigh}) async {
+    // FIX: dacă lista de camere nu e încărcată, o încărcăm acum
+    if (cameras == null || cameras!.isEmpty) {
+      cameras = await availableCameras();
+    }
     if (cameras == null || cameras!.isEmpty) return null;
     _controller = CameraController(
       cameras!.firstWhere((c) => c.lensDirection == CameraLensDirection.back,

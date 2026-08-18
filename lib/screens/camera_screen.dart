@@ -16,6 +16,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   CameraController? _cameraController;
   bool _isCameraReady = false;
   bool _isCapturing = false;
+  bool _cameraError = false; // NEW
 
   @override
   void initState() {
@@ -61,10 +62,15 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       );
       if (_cameraController != null && mounted) {
         setState(() => _isCameraReady = true);
+      } else {
+        setState(() => _cameraError = true);
       }
     } catch (e) {
       debugPrint('Camera error: $e');
-      if (mounted) Fluttertoast.showToast(msg: 'Camera error: $e');
+      if (mounted) {
+        setState(() => _cameraError = true);
+        Fluttertoast.showToast(msg: 'Camera error: $e');
+      }
     }
   }
 
@@ -101,59 +107,79 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Stack(
-        children: [
-          if (_isCameraReady && _cameraController != null)
-            CameraPreview(_cameraController!)
-          else
-            const Center(child: CircularProgressIndicator()),
-
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.width * 1.1,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 1.5),
-                    borderRadius: BorderRadius.circular(20),
+      body: _cameraError
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('Camera failed to start'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _cameraError = false;
+                        _isCameraReady = false;
+                      });
+                      _setupCamera();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : Stack(
+              children: [
+                if (_isCameraReady && _cameraController != null)
+                  CameraPreview(_cameraController!)
+                else
+                  const Center(child: CircularProgressIndicator()),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.85,
+                        height: MediaQuery.of(context).size.width * 1.1,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 1.5),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'capture',
-                  onPressed: _isCapturing ? null : _capture,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  child: _isCapturing
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                      : Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
-                            ],
-                          ),
-                        ),
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: 'capture',
+                        onPressed: _isCapturing ? null : _capture,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        child: _isCapturing
+                            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
+                            : Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
