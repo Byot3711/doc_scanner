@@ -44,11 +44,11 @@ class _ResultScreenState extends State<ResultScreen> {
     if (_saved) return;
     final title = 'Scan_${DateTime.now().toString().replaceAll(':', '-').substring(0, 19)}';
     final appDir = await getApplicationDocumentsDirectory();
-    final savedImage = File('${appDir.path}/images/$title.jpg');
+    final savedImage = File('${appDir.path}/images/${title}.jpg');
     await savedImage.parent.create(recursive: true);
     await widget.imageFile.copy(savedImage.path);
 
-    final savedPdf = File('${appDir.path}/pdfs/$title.pdf');
+    final savedPdf = File('${appDir.path}/pdfs/${title}.pdf');
     await savedPdf.parent.create(recursive: true);
     await widget.pdfFile.copy(savedPdf.path);
 
@@ -78,23 +78,17 @@ class _ResultScreenState extends State<ResultScreen> {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: () => PdfService.downloadPdf(widget.pdfFile),
-            tooltip: 'Download',
+            tooltip: 'Download PDF',
           ),
           IconButton(
             icon: const Icon(Icons.print),
-            onPressed: () {
-              if (widget.pdfFile.existsSync()) {
-                PdfService.printPdf(widget.pdfFile);
-              } else {
-                Fluttertoast.showToast(msg: 'PDF not found');
-              }
-            },
-            tooltip: 'Print',
+            onPressed: () => PdfService.printPdf(widget.pdfFile),
+            tooltip: 'Print PDF',
           ),
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveDocument,
-            tooltip: 'Save',
+            tooltip: 'Save to History',
           ),
         ],
       ),

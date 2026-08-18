@@ -25,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
             icon: Icon(Icons.info),
             child: Text('About'),
             applicationName: 'Doc Scanner Pro',
-            applicationVersion: '7.0.0',
+            applicationVersion: '8.1.0',
             applicationLegalese: '© 2024 Valentin Constantinescu\nhttps://github.com/Byot3711/doc_scanner',
           ),
         ],

@@ -38,7 +38,7 @@ class DocScannerProApp extends StatelessWidget {
                 elevation: 0,
                 scrolledUnderElevation: 0.5,
                 titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
-                iconTheme: IconThemeData(color: Colors.black87),
+                iconTheme: const IconThemeData(color: Colors.black87),
               ),
               cardTheme: CardThemeData(
                 elevation: 2,
@@ -62,11 +62,7 @@ class DocScannerProApp extends StatelessWidget {
                 elevation: 0,
                 scrolledUnderElevation: 0,
                 titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-                iconTheme: IconThemeData(color: Colors.white),
-              ),
-              cardTheme: CardThemeData(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                iconTheme: const IconThemeData(color: Colors.white),
               ),
             ),
             themeMode: themeNotifier.themeMode,
@@ -85,7 +81,13 @@ class AppThemeNotifier extends ChangeNotifier {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final mode = prefs.getString('themeMode');
-    _themeMode = mode == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    if (mode == 'dark') {
+      _themeMode = ThemeMode.dark;
+    } else if (mode == 'light') {
+      _themeMode = ThemeMode.light;
+    } else {
+      _themeMode = ThemeMode.light;
+    }
     notifyListeners();
   }
 
@@ -93,7 +95,9 @@ class AppThemeNotifier extends ChangeNotifier {
     _themeMode = mode;
     notifyListeners();
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('themeMode', mode == ThemeMode.dark ? 'dark' : 'light');
+      if (mode == ThemeMode.dark) prefs.setString('themeMode', 'dark');
+      else if (mode == ThemeMode.light) prefs.setString('themeMode', 'light');
+      else prefs.remove('themeMode');
     });
   }
 }
@@ -133,9 +137,9 @@ class _MainScreenState extends State<MainScreen> {
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.camera_alt),
-            selectedIcon: Icon(Icons.camera_alt),
-            label: 'Scan',
+            icon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.history),

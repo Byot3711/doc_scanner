@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 class PdfService {
   static Future<File> createPdf(String imagePath, String text) async {
     final pdf = pw.Document();
+
     final imageBytes = await File(imagePath).readAsBytes();
     final pdfImage = pw.MemoryImage(imageBytes);
 
@@ -16,17 +17,20 @@ class PdfService {
       build: (context) {
         return pw.Stack(
           children: [
-            pw.Positioned.fill(child: pw.Image(pdfImage, fit: pw.BoxFit.cover)),
+            pw.Positioned.fill(
+              child: pw.Image(pdfImage, fit: pw.BoxFit.cover),
+            ),
             if (text.isNotEmpty)
-              pw.Positioned.fill(
+              pw.Positioned(
+                left: 20,
+                top: 20,
+                right: 20,
+                bottom: 20,
                 child: pw.Opacity(
                   opacity: 0.0,
-                  child: pw.Padding(
-                    padding: const pw.EdgeInsets.all(20),
-                    child: pw.Text(
-                      text,
-                      style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
-                    ),
+                  child: pw.Text(
+                    text,
+                    style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
                   ),
                 ),
               ),

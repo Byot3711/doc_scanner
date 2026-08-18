@@ -50,6 +50,7 @@ class _EditorScreenState extends State<EditorScreen> {
     try {
       if (!await _currentImage.exists()) {
         if (mounted) Fluttertoast.showToast(msg: 'Image file not found');
+        setState(() => _isProcessing = false);
         return;
       }
 
